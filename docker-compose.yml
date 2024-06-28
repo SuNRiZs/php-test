@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: "sunraize/test-php:latest"
+    image: sunraize/test-php:latest
     container_name: php_container
     volumes:
       - ./src/photos:/var/www/html/photos
