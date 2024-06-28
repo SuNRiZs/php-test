@@ -1,7 +1,7 @@
 <footer>
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <p>Copyright &copy; Your Website 2014</p>
+                    <p>Сделато по тестовому заданиюю &copy;  в 2024 году </p>
                 </div>
             </div>
         </footer>
