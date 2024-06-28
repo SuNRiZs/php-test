@@ -11,7 +11,7 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 COPY ./src/ /var/www/html/
 
 # Открыть порт 80 для доступа к приложению
-EXPOSE 80
+EXPOSE 8080
 
 # Команда для запуска Apache
 CMD ["apache2-foreground"]
