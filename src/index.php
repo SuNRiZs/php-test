@@ -5,7 +5,7 @@ include "includes/_header.php";
 ?>
 
 <form class="form-signin">
-    <h2 class="form-signin-heading">Войдите, пожалуйста</h2>
+    <h2 class="form-signin-heading">Авторизация</h2>
     <label for="inputEmail" class="sr-only">Логин</label>
     <input type="input" id="username" class="form-control" placeholder="Username" required autofocus>
     <label for="inputPassword" class="sr-only">Пароль</label>
