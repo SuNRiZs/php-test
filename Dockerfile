@@ -10,7 +10,11 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Копируем исходный код проекта в контейнер
 COPY ./src/ /var/www/html/
 
-# Открыть порт 80 для доступа к приложению
+# Создание директории для загруженных фотографий и установка прав доступа
+RUN chown -R www-data:www-data /var/www/html/ && \
+    chmod -R 755 /var/www/html/
+
+# Открыть порт 8080 для доступа к приложению
 EXPOSE 8080
 
 # Команда для запуска Apache
