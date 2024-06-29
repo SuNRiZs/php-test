@@ -5,7 +5,7 @@ services:
     image: sunraize/test-php:latest
     container_name: php_container
     volumes:
-      - ./src/photos:/var/www/html/photos
+      - ./src/photos:/var/www/html/photos :rw
     ports:
       - "8080"
     networks:
