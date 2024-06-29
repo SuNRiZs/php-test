@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Копируем исходный код проекта в контейнер
-COPY  s./src/ /var/www/html/
+COPY ./src/ /var/www/html/
 
 # Создание директории для загруженных фотографий и установка прав доступа
 RUN chown -R www-data:www-data /var/www/html/ && \
