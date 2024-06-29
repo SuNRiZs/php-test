@@ -8,14 +8,14 @@ WORKDIR /var/www/html
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Копируем исходный код проекта в контейнер
-COPY ./src/ /var/www/html/
+COPY  s./src/ /var/www/html/
 
 # Создание директории для загруженных фотографий и установка прав доступа
 RUN chown -R www-data:www-data /var/www/html/ && \
     chmod -R 755 /var/www/html/
 
-# Открыть порт 8080 для доступа к приложению
-EXPOSE 8080
+# Открыть порт 80 для доступа к приложению
+EXPOSE 80
 
 # Команда для запуска Apache
 CMD ["apache2-foreground"]
