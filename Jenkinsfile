@@ -1,10 +1,11 @@
 pipeline {
     agent {
         node {
-            label 'ALT_Linux' 
+            label 'ALT_Linux' // Указываем метку агента, который будет использоваться для сборки
         }
     }
     environment {
+        // Определяем переменные окружения для учетных данных и сервера
         DOCKERHUB_CREDENTIALS = credentials('docker-hub-credentials')
         SSH_KEY_PATH = credentials('ssh-key-server-test')
         GITHUB_CREDENTIALS = credentials('github-credentials-id')
@@ -13,11 +14,13 @@ pipeline {
     stages {
         stage('Clone repository') {
             steps {
+                // Клонируем репозиторий с GitHub для начала работы
                 git(credentialsId: 'github-credentials-id', url: 'https://github.com/SuNRiZs/php-test.git', branch: 'main')
             }
         }
         stage('Add commit in site') {
             steps {
+                // Обновляем футер на сайте, добавляя номер сборки
                 sh """
                     sed -i "s/в 2024 году.*/в 2024 году сборка сайта \\№ ${BUILD_NUMBER}/" ./src/includes/_footer.php
                 """
@@ -26,32 +29,31 @@ pipeline {
         stage('Build, Test and Push Image') {
             steps {
                 script {
-                    // Строим образ Docker и тегируем его номером сборки
+                    // Строим Docker образ и тегируем его номером сборки
                     def myImage = docker.build("sunraize/test-php:${BUILD_NUMBER}")
             
-                    // Запускаем новый контейнер для тестирования
+                    // Запускаем контейнер для тестирования образа
                     sh "docker run -d -p \"8080:80\" --name webtest sunraize/test-php:${BUILD_NUMBER}"
             
-                    // Проверяем доступность веб-сервера в контейнере
+                    // Проверяем работоспособность веб-сервера в контейнере
                     def testResult = sh script: 'curl -f http://localhost:8080/', returnStatus: true
             
-                    // Если тест не прошел, останавливаем и удаляем контейнер, затем выдаем ошибку
+                    // В случае ошибки останавливаем и удаляем контейнер, сообщаем об ошибке
                     if (testResult != 0) {
                         sh "docker stop webtest || true"
                         sh "docker rm webtest || true"
-                        // Удаляем образ на сборщике
                         sh "docker rmi sunraize/test-php:${BUILD_NUMBER}"
                         error('Тестирование образа завершилось неудачей')
                     }
             
-                    // Если тест прошел успешно, отправляем образ в репозиторий
+                    // При успешном тестировании пушим образ в Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh "docker login -u ${USERNAME} -p ${PASSWORD}"
                         myImage.push("latest")
                         myImage.push("${env.BUILD_NUMBER}")
                         sh "docker logout"
                     }
-                    // Останавливаем и удаляем тестовый контейнер
+                    // Очищаем рабочее пространство, удаляя тестовый контейнер
                     sh "docker stop webtest || true"
                     sh "docker rm webtest || true"
                 }
@@ -59,6 +61,7 @@ pipeline {
         }
         stage('Deploy to server') {
             steps {
+                // Разворачиваем образ на сервере с помощью SCP и SSH
                 sh """
                     scp -i \${SSH_KEY_PATH} -P 40022 docker-compose.yml devops@\${SERVER}:/home/devops/
                     ssh -i \${SSH_KEY_PATH} -p 40022 devops@\${SERVER} '
@@ -69,11 +72,12 @@ pipeline {
         }
         stage('Clean up Docker images') {
             steps {
+                // Удаляем старые образы Docker на сервере и сборщике
                 script {
                      sh "docker rmi sunraize/test-php:\${BUILD_NUMBER}"
                      sh """
                        ssh -i \${SSH_KEY_PATH} -p 40022 devops@\${SERVER} '
-                           docker images | grep "sunraize/test-php" | sort -r | tail -n +4 | awk "{print \\\\\$1\\\":\\\"\\\\\$2}" | xargs -r docker rmi
+                           docker images | grep "sunraize/test-php" | sort -r | tail -n +4 | awk "{print \\\\\\$1\\\":\\\"\\\\\\$2}" | xargs -r docker rmi
                         '
                      """
                 }
@@ -82,6 +86,7 @@ pipeline {
     }
     post {
         always {
+            // Очищаем рабочее пространство после сборки
             cleanWs()
         }
     }
