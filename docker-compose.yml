@@ -7,7 +7,7 @@ services:
     volumes:
       - ./src/photos:/var/www/html/photos :rw
     ports:
-      - "8080:8080"
+      - "8080"
     networks:
       - app-network
 
