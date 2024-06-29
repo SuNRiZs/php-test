@@ -14,7 +14,7 @@ COPY ./src/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html/ && \
     chmod -R 755 /var/www/html/
 
-# Открыть порт 80 для доступа к приложению
+# Открыть порт 8080 для доступа к приложению
 EXPOSE 80
 
 # Команда для запуска Apache
